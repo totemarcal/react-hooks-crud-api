@@ -1,7 +1,14 @@
 import React, { useState, useEffect } from "react";
-import TutorialDataService from "../services/TutorialService";
+
 
 const Tutorial = props => {
+  const data = {
+    id: 1,
+    title: "Teste 1",
+    description: "Teste 1",
+    published: false
+  }
+
   const initialTutorialState = {
     id: null,
     title: "",
@@ -11,15 +18,9 @@ const Tutorial = props => {
   const [currentTutorial, setCurrentTutorial] = useState(initialTutorialState);
   const [message, setMessage] = useState("");
 
-  const getTutorial = id => {
-    TutorialDataService.get(id)
-      .then(response => {
-        setCurrentTutorial(response.data);
-        console.log(response.data);
-      })
-      .catch(e => {
-        console.log(e);
-      });
+  const getTutorial = () => {
+    setCurrentTutorial(data)
+    //setCurrentTutorial(null)
   };
 
   useEffect(() => {
@@ -32,43 +33,15 @@ const Tutorial = props => {
   };
 
   const updatePublished = status => {
-    var data = {
-      id: currentTutorial.id,
-      title: currentTutorial.title,
-      description: currentTutorial.description,
-      published: status
-    };
-
-    TutorialDataService.update(currentTutorial.id, data)
-      .then(response => {
-        setCurrentTutorial({ ...currentTutorial, published: status });
-        console.log(response.data);
-      })
-      .catch(e => {
-        console.log(e);
-      });
+    alert(status)
   };
 
   const updateTutorial = () => {
-    TutorialDataService.update(currentTutorial.id, currentTutorial)
-      .then(response => {
-        console.log(response.data);
-        setMessage("The tutorial was updated successfully!");
-      })
-      .catch(e => {
-        console.log(e);
-      });
+    alert("Atualizado!")
   };
 
   const deleteTutorial = () => {
-    TutorialDataService.remove(currentTutorial.id)
-      .then(response => {
-        console.log(response.data);
-        props.history.push("/tutorials");
-      })
-      .catch(e => {
-        console.log(e);
-      });
+    alert("Apagado!")
   };
 
   return (

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import TutorialDataService from "../services/TutorialService";
+
 
 const AddTutorial = () => {
   const initialTutorialState = {
@@ -21,21 +21,8 @@ const AddTutorial = () => {
       title: tutorial.title,
       description: tutorial.description
     };
-
-    TutorialDataService.create(data)
-      .then(response => {
-        setTutorial({
-          id: response.data.id,
-          title: response.data.title,
-          description: response.data.description,
-          published: response.data.published
-        });
-        setSubmitted(true);
-        console.log(response.data);
-      })
-      .catch(e => {
-        console.log(e);
-      });
+    alert(data.title)
+    setSubmitted(true);
   };
 
   const newTutorial = () => {

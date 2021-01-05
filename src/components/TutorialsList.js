@@ -1,8 +1,21 @@
 import React, { useState, useEffect } from "react";
-import TutorialDataService from "../services/TutorialService";
+
 import { Link } from "react-router-dom";
 
 const TutorialsList = () => {
+  const data = [{
+    id: 1,
+    title: "Teste 1",
+    description: "Teste 1",
+    published: false
+  },
+  {
+    id: 2,
+    title: "Teste 2",
+    description: "Teste 2",
+    published: true
+  }];
+
   const [tutorials, setTutorials] = useState([]);
   const [currentTutorial, setCurrentTutorial] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(-1);
@@ -18,14 +31,7 @@ const TutorialsList = () => {
   };
 
   const retrieveTutorials = () => {
-    TutorialDataService.getAll()
-      .then(response => {
-        setTutorials(response.data);
-        console.log(response.data);
-      })
-      .catch(e => {
-        console.log(e);
-      });
+    setTutorials(data);
   };
 
   const refreshList = () => {
@@ -40,30 +46,17 @@ const TutorialsList = () => {
   };
 
   const removeAllTutorials = () => {
-    TutorialDataService.removeAll()
-      .then(response => {
-        console.log(response.data);
-        refreshList();
-      })
-      .catch(e => {
-        console.log(e);
-      });
+    alert("Remover Todos!")
   };
 
   const findByTitle = () => {
-    TutorialDataService.findByTitle(searchTitle)
-      .then(response => {
-        setTutorials(response.data);
-        console.log(response.data);
-      })
-      .catch(e => {
-        console.log(e);
-      });
+    alert(searchTitle)
+   
   };
 
   return (
     <div className="list row">
-      <div className="col-md-8">
+      <div className="col-md-10">
         <div className="input-group mb-3">
           <input
             type="text"
@@ -83,67 +76,42 @@ const TutorialsList = () => {
           </div>
         </div>
       </div>
-      <div className="col-md-6">
+      <div className="col-md-10">
         <h4>Tutorials List</h4>
 
-        <ul className="list-group">
+        <table class="table">
+          <thead class="thead-dark">
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Title</th>
+              <th scope="col">Description</th>
+              <th scope="col"></th>
+              <th scope="col"></th>
+            </tr>
+          </thead>
+          <tbody>
           {tutorials &&
             tutorials.map((tutorial, index) => (
-              <li
-                className={
-                  "list-group-item " + (index === currentIndex ? "active" : "")
-                }
-                onClick={() => setActiveTutorial(tutorial, index)}
-                key={index}
-              >
-                {tutorial.title}
-              </li>
+              <tr>
+                <th scope="row">{index}</th>
+                <td>{tutorial.title}</td>
+                <td>{tutorial.description}</td>
+                <td> <Link to={"/tutorials/" + tutorial.id}
+                  className="badge badge-warning">Edit</Link>
+                </td>
+                <td> <Link to={"/tutorials/" + tutorial.id}
+                  className="badge badge-danger">Remove</Link>
+                </td>
+              </tr>
             ))}
-        </ul>
+            </tbody>
+          </table>
 
         <button
           className="m-3 btn btn-sm btn-danger"
-          onClick={removeAllTutorials}
-        >
+          onClick={removeAllTutorials}>
           Remove All
         </button>
-      </div>
-      <div className="col-md-6">
-        {currentTutorial ? (
-          <div>
-            <h4>Tutorial</h4>
-            <div>
-              <label>
-                <strong>Title:</strong>
-              </label>{" "}
-              {currentTutorial.title}
-            </div>
-            <div>
-              <label>
-                <strong>Description:</strong>
-              </label>{" "}
-              {currentTutorial.description}
-            </div>
-            <div>
-              <label>
-                <strong>Status:</strong>
-              </label>{" "}
-              {currentTutorial.published ? "Published" : "Pending"}
-            </div>
-
-            <Link
-              to={"/tutorials/" + currentTutorial.id}
-              className="badge badge-warning"
-            >
-              Edit
-            </Link>
-          </div>
-        ) : (
-          <div>
-            <br />
-            <p>Please click on a Tutorial...</p>
-          </div>
-        )}
       </div>
     </div>
   );
