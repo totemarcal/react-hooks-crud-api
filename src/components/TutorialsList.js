@@ -77,9 +77,6 @@ const TutorialsList = () => {
     });
   };
 
-
-  useEffect(retrieveTutorials, [page, pageSize]);
-
   const refreshList = () => {
     retrieveTutorialsTotalPages()
     retrieveTutorials();
@@ -87,11 +84,13 @@ const TutorialsList = () => {
     setCurrentIndex(-1);
   };
 
+  useEffect(refreshList, [page, pageSize]);
+
   const deleteTutorial = (id) => {
     TutorialDataService.remove(id)
       .then(response => {
         console.log(response.data);
-        retrieveTutorials();
+        refreshList();
       })
       .catch(e => {
         console.log(e);
@@ -100,14 +99,14 @@ const TutorialsList = () => {
 
   const removeAllTutorials = () => {
     tutorials.map( (tutorial) => {
-    TutorialDataService.remove(tutorial.id)
-      .then(response => {
-        console.log(response.data);
-        retrieveTutorials();
-      })
-      .catch(e => {
-        console.log(e);
-      });
+      TutorialDataService.remove(tutorial.id)
+        .then(response => {
+          console.log(response.data);
+          retrieveTutorials();
+        })
+        .catch(e => {
+          console.log(e);
+        });
     })
   };
 
@@ -120,8 +119,21 @@ const TutorialsList = () => {
     setPage(1);
   };
 
-  const findByTitle = () => {
+  const findByTitleTotalPagination = () => {
     TutorialDataService.findByTitle(searchTitle)
+    .then(response => {
+      setCount(Math.ceil(response.data.length/pageSize));
+    })
+    .catch(e => {
+      console.log(e);
+    });   
+  };
+
+  const findByTitle = () => {
+    const params = getRequestParams(page, pageSize);
+    findByTitleTotalPagination()
+
+    TutorialDataService.findByTitleWhitPagination(searchTitle, params)
     .then(response => {
       setTutorials(response.data);
       console.log(response.data);

@@ -36,6 +36,10 @@ const findByTitle = title => {
   return http.get(`/tutorials?title=${title}`);
 };
 
+const findByTitleWhitPagination = (title, params) => {
+  return http.get(`/tutorials?title=${title}`, { params });
+};
+
 export default {
   getAll,
   get,
@@ -45,5 +49,6 @@ export default {
   remove,
   removeAll,
   findByTitle,
-  getAllPagination
+  getAllPagination,
+  findByTitleWhitPagination
 };
