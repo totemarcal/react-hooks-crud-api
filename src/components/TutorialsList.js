@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
-
 import { Link } from "react-router-dom";
+import TutorialDataService from "../services/TutorialService";
+import Pagination from "@material-ui/lab/Pagination";
+
 
 const TutorialsList = () => {
   const data = [{
@@ -21,9 +23,31 @@ const TutorialsList = () => {
   const [currentIndex, setCurrentIndex] = useState(-1);
   const [searchTitle, setSearchTitle] = useState("");
 
+  const [page, setPage] = useState(1);
+  const [count, setCount] = useState(0);
+  const [pageSize, setPageSize] = useState(3);
+
+  const pageSizes = [3, 6, 9];
+
   useEffect(() => {
+    retrieveTutorialsTotalPages()
     retrieveTutorials();
   }, []);
+
+  const getRequestParams = (page, pageSize) => {
+    let params = {};
+
+    if (page) {
+      params["page"] = page;
+    }
+
+    if (pageSize) {
+      params["limit"] = pageSize;
+    }
+
+    return params;
+  };
+
 
   const onChangeSearchTitle = e => {
     const searchTitle = e.target.value;
@@ -31,27 +55,80 @@ const TutorialsList = () => {
   };
 
   const retrieveTutorials = () => {
-    setTutorials(data);
+    const params = getRequestParams(page, pageSize);
+
+    TutorialDataService.getAllPagination(params)
+    .then(response => {
+      setTutorials(response.data);
+      console.log(response.data)
+    })
+    .catch(e => {
+      console.log(e);
+    });
   };
 
+  const retrieveTutorialsTotalPages = () => {
+    TutorialDataService.getAll()
+    .then(response => {
+      setCount(Math.ceil(response.data.length/pageSize));
+    })
+    .catch(e => {
+      console.log(e);
+    });
+  };
+
+
+  useEffect(retrieveTutorials, [page, pageSize]);
+
   const refreshList = () => {
+    retrieveTutorialsTotalPages()
     retrieveTutorials();
     setCurrentTutorial(null);
     setCurrentIndex(-1);
   };
 
-  const setActiveTutorial = (tutorial, index) => {
-    setCurrentTutorial(tutorial);
-    setCurrentIndex(index);
-  };
+  const deleteTutorial = (id) => {
+    TutorialDataService.remove(id)
+      .then(response => {
+        console.log(response.data);
+        retrieveTutorials();
+      })
+      .catch(e => {
+        console.log(e);
+      });
+  }
 
   const removeAllTutorials = () => {
-    alert("Remover Todos!")
+    tutorials.map( (tutorial) => {
+    TutorialDataService.remove(tutorial.id)
+      .then(response => {
+        console.log(response.data);
+        retrieveTutorials();
+      })
+      .catch(e => {
+        console.log(e);
+      });
+    })
+  };
+
+  const handlePageChange = (event, value) => {
+    setPage(value);
+  };
+
+  const handlePageSizeChange = (event) => {
+    setPageSize(event.target.value);
+    setPage(1);
   };
 
   const findByTitle = () => {
-    alert(searchTitle)
-   
+    TutorialDataService.findByTitle(searchTitle)
+    .then(response => {
+      setTutorials(response.data);
+      console.log(response.data);
+    })
+    .catch(e => {
+      console.log(e);
+    });   
   };
 
   return (
@@ -93,20 +170,37 @@ const TutorialsList = () => {
           {tutorials &&
             tutorials.map((tutorial, index) => (
               <tr>
-                <th scope="row">{index}</th>
+                <th scope="row">{tutorial.id}</th>
                 <td>{tutorial.title}</td>
                 <td>{tutorial.description}</td>
                 <td> <Link to={"/tutorials/" + tutorial.id}
                   className="badge badge-warning">Edit</Link>
                 </td>
-                <td> <Link to={"/tutorials/" + tutorial.id}
+                <td> <Link onClick={() => deleteTutorial(tutorial.id)}
                   className="badge badge-danger">Remove</Link>
                 </td>
               </tr>
             ))}
             </tbody>
           </table>
-
+          <Pagination
+            className="my-3"
+            count={count}
+            page={page}
+            siblingCount={1}
+            boundaryCount={1}
+            variant="outlined"
+            shape="rounded"
+            onChange={handlePageChange}
+          />
+          {"Items per Page: "}
+          <select onChange={handlePageSizeChange} value={pageSize}>
+            {pageSizes.map((size) => (
+              <option key={size} value={size}>
+                {size}
+              </option>
+            ))}
+          </select>
         <button
           className="m-3 btn btn-sm btn-danger"
           onClick={removeAllTutorials}>

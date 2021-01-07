@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-
+import TutorialDataService from "../services/TutorialService";
 
 const Tutorial = props => {
   const data = {
@@ -18,9 +18,15 @@ const Tutorial = props => {
   const [currentTutorial, setCurrentTutorial] = useState(initialTutorialState);
   const [message, setMessage] = useState("");
 
-  const getTutorial = () => {
-    setCurrentTutorial(data)
-    //setCurrentTutorial(null)
+  const getTutorial = (id) => {
+    TutorialDataService.get(id)
+      .then(response => {
+        setCurrentTutorial(response.data);
+        console.log(response.data);
+      })
+      .catch(e => {
+        console.log(e);
+      });
   };
 
   useEffect(() => {
@@ -33,15 +39,45 @@ const Tutorial = props => {
   };
 
   const updatePublished = status => {
-    alert(status)
-  };
+    var data = {
+      id: currentTutorial.id,
+      title: currentTutorial.title,
+      description: currentTutorial.description,
+      published: status
+    };
+
+    TutorialDataService.update(currentTutorial.id, data)
+      .then(response => {
+        setCurrentTutorial({ ...currentTutorial, published: status });
+        console.log(response.data);
+      })
+      .catch(e => {
+        console.log(e);
+      });  
+    };
 
   const updateTutorial = () => {
-    alert("Atualizado!")
+    TutorialDataService.update(currentTutorial.id, currentTutorial)
+    .then(response => {
+      console.log(response.data)
+      setMessage("The tutorial was updated successfully!");
+    })
+    .catch(e=>{
+      console.log(e)
+    })
   };
 
   const deleteTutorial = () => {
-    alert("Apagado!")
+    if (window.confirm('Deseja excluir?')){
+      TutorialDataService.remove(currentTutorial.id)
+      .then(response => {
+        console.log(response.data);
+        props.history.push("/tutorials");
+      })
+      .catch(e => {
+        console.log(e);
+      });  
+    }
   };
 
   return (
